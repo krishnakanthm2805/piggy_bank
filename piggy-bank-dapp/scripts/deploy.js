@@ -1,24 +1,20 @@
 import hre from "hardhat";
-const { ethers } = hre;
 
 async function main() {
+  const { ethers } = hre;
+
   const [deployer] = await ethers.getSigners();
+  console.log("Deploying contract with:", deployer.address);
 
-  console.log("Deploying contracts with:", await deployer.getAddress());
+  const PiggyBank = await ethers.getContractFactory("PiggyBank");
+  const piggyBank = await PiggyBank.deploy(3600);
 
-  const PiggyBankFactory = await ethers.getContractFactory("PiggyBank");
-  const piggyBank = await PiggyBankFactory.connect(deployer).deploy(3600); // 1 hour lock
+  await piggyBank.waitForDeployment();
 
-  if (typeof piggyBank.waitForDeployment === "function") {
-    await piggyBank.waitForDeployment();
-  } else if (piggyBank.deployed) {
-    await piggyBank.deployed();
-  }
-
-  console.log("PiggyBank deployed to:", piggyBank.address);
+  console.log("PiggyBank deployed at:", await piggyBank.getAddress());
 }
 
 main().catch((error) => {
   console.error(error);
-  process.exitCode = 1;
+  process.exit(1);
 });

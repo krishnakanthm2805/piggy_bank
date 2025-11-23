@@ -1,39 +1,17 @@
-const Web3 = require('web3');
-const fs = require('fs');
-
-const {run} = require('./lib/utils.js');
-
-const code = require('./code.json');
+import { ethers } from "hardhat";
 
 async function main() {
-    // Create web3 instance and connect to local net
-    const web3 = new Web3(
-        new Web3.providers.HttpProvider('http://localhost:8545')
-    );
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying with:", deployer.address);
 
-    const coinbase = await web3.eth.getCoinbase();
+  const PiggyBank = await ethers.getContractFactory("PiggyBank");
+  const piggyBank = await PiggyBank.deploy();
 
-    const PiggyBank = new web3.eth.Contract(code.interface, {
-        from: coinbase,
-        gas: 5000000,
-    });
-
-    const limit = process.argv[2] || 2;
-
-    // Deploy contract in the testnet
-    const contract = await PiggyBank.deploy({
-        // Conract body
-        data: code.bytecode,
-        // Constructor arguments
-        arguments: [limit],
-    })
-    .send();
-
-    // Remember contract's address and save with interface
-    fs.writeFileSync('contract.json', JSON.stringify({
-        address: contract.options.address,
-        interface: code.interface,
-    }, null, 4));
+  await piggyBank.waitForDeployment();
+  console.log("PiggyBank deployed at:", await piggyBank.getAddress());
 }
 
-run(main);
+main().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
