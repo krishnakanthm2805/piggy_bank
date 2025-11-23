@@ -7,6 +7,7 @@
     "compile": "npx hardhat compile",
     "node": "npx hardhat node",
     "deploy:local": "npx hardhat run scripts/deploy.js --network localhost",
+    "deploy:local:cjs": "npx hardhat run scripts/deploy.cjs --network localhost",
   "start-and-deploy": "npx concurrently -k -s first \"npx hardhat node\" \"npx wait-on http://127.0.0.1:8545 && npx hardhat run scripts/deploy.js --network localhost\"",
   "auto": "node scripts/start-and-deploy.js"
   },
